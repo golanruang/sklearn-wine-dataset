@@ -8,8 +8,14 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_wine
 from sklearn.pipeline import make_pipeline
+from sklearn.metrics import plot_confusion_matrix
 
 from sklearn.datasets import load_wine
+
+from matplotlib import pyplot
+
+#print(matplotlib.__version__)
+
 features, target = load_wine(return_X_y=True)
 
 X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.30, random_state=42)
@@ -17,18 +23,44 @@ X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=
 unscaledClf=make_pipeline(PCA(n_components=2),GaussianNB())
 unscaledClf.fit(X_train, y_train)
 pred_test=unscaledClf.predict(X_test)
-print('\nPrediction accuracy for the standardized test dataset without PCA Scaler')
-print('{:.2%}\n'.format(metrics.accuracy_score(y_test, pred_test)))
+
+correct =0
+incorrect=0
+for pred,gt in zip(pred_test,y_test):
+    if pred==gt:
+        correct+=1
+    else:
+        incorrect+=1
+print(f"\nUnscaled Correct: {correct}, Incorrect: {incorrect}, % Correct: {correct/(correct + incorrect): 5.2}\n")
+plot_confusion_matrix(unscaledClf,X_test,y_test)
 
 scaledClf = make_pipeline(StandardScaler(), PCA(n_components=2), GaussianNB())
 scaledClf.fit(X_train, y_train)
 pred_test = scaledClf.predict(X_test)
 
-print('\nPrediction accuracy for the standardized test dataset with PCA Scaler')
-print('{:.2%}\n'.format(metrics.accuracy_score(y_test, pred_test)))
+correct =0
+incorrect=0
+for pred,gt in zip(pred_test,y_test):
+    if pred==gt:
+        correct+=1
+    else:
+        incorrect+=1
+print(f"PCA Scaled Correct: {correct}, Incorrect: {incorrect}, % Correct: {correct/(correct + incorrect): 5.2}")
+plot_confusion_matrix(unscaledClf,X_test,y_test)
 
-
-
+scaledClf=make_pipeline(StandardScaler(),GaussianNB(priors=None))
+scaledClf.fit(X_train, y_train)
+pred_test=scaledClf.predict(X_test)
+correct =0
+incorrect=0
+for pred,gt in zip(pred_test,y_test):
+    if pred==gt:
+        correct+=1
+    else:
+        incorrect+=1
+print(f"\nStandard Scaled Correct: {correct}, Incorrect: {incorrect}, % Correct: {correct/(correct + incorrect): 5.2}\n")
+plot_confusion_matrix(unscaledClf,X_test,y_test)
+pyplot.show()
 #array([0, 1, 2])
 
 #['class_0', 'class_1', 'class_2']
